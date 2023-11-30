@@ -1,0 +1,31 @@
+import cv2 as cv
+import numpy as np
+import matplotlib.pyplot as plt
+
+img = cv.imread("CN/Teste2.jpg")
+
+# Separando os canais de cor da imagem
+blue_channel = img[:,:,0]  # Canal azul
+
+# Aplicando operações de pré-processamento no canal azul
+kernel = np.ones((5,5), np.uint8)
+blue_channel = cv.GaussianBlur(blue_channel, (9,9), 0)
+blue_channel = cv.morphologyEx(blue_channel, cv.MORPH_OPEN, kernel)
+blue_channel = cv.morphologyEx(blue_channel, cv.MORPH_CLOSE, kernel)
+blue_channel = cv.threshold(blue_channel, 60, 255, cv.THRESH_BINARY_INV)[1]
+blue_channel = cv.morphologyEx(blue_channel, cv.MORPH_CLOSE, kernel)
+
+canny = cv.Canny(blue_channel, 100, 200)
+
+plt.imshow(blue_channel, cmap="gray")
+plt.show()
+
+circles = cv.HoughCircles(blue_channel,
+                          cv.HOUGH_GRADIENT,
+                          dp=1.1,
+                          minDist=300,
+                          param1=200,
+                          param2=40,
+                          minRadius=50,
+                          maxRadius=400)
+print(circles)
